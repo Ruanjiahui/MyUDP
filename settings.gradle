@@ -1,0 +1,1 @@
+include ':app',':udp_sdk'
