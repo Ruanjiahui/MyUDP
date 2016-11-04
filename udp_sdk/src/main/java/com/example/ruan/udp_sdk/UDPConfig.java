@@ -11,7 +11,7 @@ public class UDPConfig {
     public static String IP = "255.255.255.255";
 
     //udp发送的时间间隔
-    public static int time = 1500;
+    public static int time = 5000;
 
 
     //广播的次数

@@ -1,5 +1,7 @@
 package com.example.ruan.udp_sdk;
 
+import java.net.InetAddress;
+
 /**
  * Created by Administrator on 2016/7/16.
  *
@@ -11,6 +13,17 @@ public abstract class UDPSource{
      * 这个方法是初始化udp链接
      */
     protected abstract void Connect();
+
+    /**
+     * 这个方法是初始化udp链接
+     */
+    protected abstract void Connect(int PORT);
+
+
+    /**
+     * 这个方法是初始化udp链接
+     */
+    protected abstract void Connect(int PORT , InetAddress address);
 
     /**
      * 这个方法是发送信息

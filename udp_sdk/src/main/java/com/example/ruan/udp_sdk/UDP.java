@@ -3,6 +3,8 @@ package com.example.ruan.udp_sdk;
 
 import android.util.Log;
 
+import java.net.InetAddress;
+
 /**
  * Created by Ruanjiahui on 2016/7/15.
  * <p/>
@@ -27,6 +29,19 @@ public class UDP implements UDPListen.UDPCallback {
         udpBase = new UDPBase();
         //初始化链接
         udpBase.Connect();
+    }
+
+    public UDP(int PORT){
+        udpBase = new UDPBase();
+        //初始化链接
+        udpBase.Connect(PORT);
+    }
+
+
+    public UDP(int PORT , InetAddress address){
+        udpBase = new UDPBase();
+        //初始化链接
+        udpBase.Connect(PORT , address);
     }
 
     /**
@@ -76,9 +91,9 @@ public class UDP implements UDPListen.UDPCallback {
      */
     @Override
     public void CallSuccess(int position, Object[] objects) {
-        if (handler != null)
+        if (handler != null) {
             handler.Handler(position, objects);
-        else
+        }else
             Log.e("Ruan", "UDPListen.UDPHandler is not null");
     }
 

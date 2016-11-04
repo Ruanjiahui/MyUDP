@@ -47,6 +47,36 @@ public class UDPBase extends UDPSource implements UDPListen.UDPReviced, UDPListe
     }
 
     /**
+     * 这个方法是初始化udp链接
+     *
+     * @param PORT
+     */
+    @Override
+    protected void Connect(int PORT) {
+        try {
+            if (datagramSocket == null)
+                datagramSocket = new DatagramSocket(PORT);
+        } catch (SocketException e) {
+            Log.e("System.out", e.toString());
+        }
+    }
+
+    /**
+     * 这个方法是初始化udp链接
+     *
+     * @param PORT
+     */
+    @Override
+    protected void Connect(int PORT, InetAddress addr) {
+        try {
+            if (datagramSocket == null)
+                datagramSocket = new DatagramSocket(PORT, addr);
+        } catch (SocketException e) {
+            Log.e("System.out", e.toString());
+        }
+    }
+
+    /**
      * 这个方法是发送信息
      *
      * @param IP     发送的IP
@@ -58,17 +88,6 @@ public class UDPBase extends UDPSource implements UDPListen.UDPReviced, UDPListe
         this.IP = IP;
         this.PORT = PORT;
         System.out.println(new String(buffer, 0, buffer.length) + "--" + IP + "--" + PORT);
-
-
-//        try {
-//            DatagramPacket outdatagramPacket = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(IP), PORT);
-//            datagramSocket.send(outdatagramPacket);
-//            timer = new Timer();
-//            myTimerTask = new MyTimerTask(this);
-//            timer.schedule(myTimerTask, UDPConfig.time, UDPConfig.time);
-//        } catch (Exception e) {
-//            CloseUDP();
-//        }
 
         new Thread(new UDPSend(this, buffer)).start();
     }
@@ -93,6 +112,7 @@ public class UDPBase extends UDPSource implements UDPListen.UDPReviced, UDPListe
     protected void unConnect() {
         if (datagramSocket != null) {
             this.datagramSocket.close();
+            this.datagramSocket.disconnect();
             datagramSocket = null;
         }
     }
@@ -116,11 +136,8 @@ public class UDPBase extends UDPSource implements UDPListen.UDPReviced, UDPListe
                 DatagramPacket indatagramPacket = new DatagramPacket(buffer, buffer.length);
                 datagramSocket.receive(indatagramPacket);
                 Log.e("System.out", "接收结束");
-                timeout = false;
-                //马上关闭UDP
-                CloseUDP();
-                System.out.println(timeout + "---");
-                System.out.println(indatagramPacket.getLength());
+                isData = true;
+                System.out.println(indatagramPacket.getLength() + "--" + new String(buffer, 0, indatagramPacket.getLength()));
                 //获取返回数据的长度
                 objects[0] = buffer;
                 objects[1] = indatagramPacket.getLength();
@@ -161,16 +178,19 @@ public class UDPBase extends UDPSource implements UDPListen.UDPReviced, UDPListe
     }
 
     private boolean timeout = true;
+    private boolean isData = false;
 
     @Override
     public void timerHandler(Message msg) {
         timeout = myTimerTask.cancel();
-        Log.e("System.out", "++" + timeout);
         if (timeout) {
             CloseUDP();
-            Log.e("System.out", "-------");
-            //超时
-            callback.CallError(position, 0);
+            Log.e("System.out", "线程关闭");
+            if (!isData) {
+                //超时
+                callback.CallError(position, 0);
+                Log.e("System.out", "UDP获取超时");
+            }
         }
     }
 
@@ -191,14 +211,12 @@ public class UDPBase extends UDPSource implements UDPListen.UDPReviced, UDPListe
 //            datagramSocket.close();
 //            datagramSocket = null;
 //        }
-        System.out.println(thread + "--" + timer + "--" + myTimerTask);
         if (thread != null)
             thread.interrupt();
         if (timer != null)
             timer.cancel();
         if (myTimerTask != null) {
             myTimerTask.cancel();
-            Log.e("System.out", "--" + timeout);
         }
 //        Log.e("System.out", "--" + myTimerTask.cancel());
     }
